@@ -1,0 +1,51 @@
+image: node:20
+
+stages:
+  - build
+  - deploy
+
+variables:
+  SSH_PRIVATE_KEY: $SSH_PRIVATE_KEY
+  REMOTE_USER: devops
+  REMOTE_HOST: vincenzocampagnano.com
+  REMOTE_PATH: /var/www/html
+  EXPORT: "1"
+  UNOPTIMIZED: "1"
+  BASE_PATH: ""
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .next/cache
+  policy: pull-push
+
+before_script:
+  - apt-get update && apt-get install -y --no-install-recommends rsync openssh-client
+  - yarn install --frozen-lockfile
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - ssh-keyscan -H "$REMOTE_HOST" >> ~/.ssh/known_hosts || true
+
+build:
+  stage: build
+  script:
+    - yarn build
+  artifacts:
+    paths:
+      - out/
+    expire_in: 1h
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - rsync -avz --delete out/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+# Use "rules" statement instead "only" of so in future, if you want, 
+# you can add rules to deploy only if a specif directory is changed

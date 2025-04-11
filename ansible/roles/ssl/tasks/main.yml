@@ -1,0 +1,62 @@
+- name: Create SSL directory
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy domain certificate
+  copy:
+    src: "domain.cert.pem"
+    dest: "/etc/nginx/ssl/domain.cert.pem"
+    owner: root
+    group: root
+    mode: '0644'
+
+# - name: Copy intermediate/public key
+#   copy:
+#     src: "public.key.pem"
+#     dest: "/etc/nginx/ssl/public.key.pem"
+#     owner: root
+#     group: root
+#     mode: '0644'
+
+- name: Copy private key
+  copy:
+    src: "private.key.pem"
+    dest: "/etc/nginx/ssl/private.key.pem"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy custom NGINX configuration for SSL
+  copy:
+    src: "vincenzocampagnano.com"
+    dest: "/etc/nginx/sites-available/vincenzocampagnano.com"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable custom NGINX config
+  file:
+    src: "/etc/nginx/sites-available/vincenzocampagnano.com"
+    dest: "/etc/nginx/sites-enabled/vincenzocampagnano.com"
+    state: link
+    force: yes
+
+- name: Remove default NGINX site if exists
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Test NGINX configuration
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  failed_when: nginx_test.rc != 0
+
+- name: Reload NGINX
+  service:
+    name: nginx
+    state: reloaded

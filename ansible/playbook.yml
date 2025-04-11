@@ -1,0 +1,7 @@
+- name: Configure web server
+  hosts: web
+  become: yes
+
+  roles:
+    - web
+    - ssl

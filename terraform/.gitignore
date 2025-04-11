@@ -1,0 +1,24 @@
+# Local .terraform directories
+.terraform/
+
+# Terraform state files
+terraform.tfstate
+terraform.tfstate.backup
+
+# Backend configuration files
+backend.tf
+
+# Terraform lock file (optional, if you want to regenerate it on each machine)
+.terraform.lock.hcl
+
+# Sensitive variable files
+*.tfvars
+
+# Crash logs
+crash.log
+
+# Ignore editor-specific files
+*.swp
+*.swo
+.idea/
+.vscode/

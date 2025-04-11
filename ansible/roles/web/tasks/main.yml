@@ -1,0 +1,32 @@
+- name: Install NGINX
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Enable and start NGINX
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Copy index.html (placeholder web page) only if /var/www/html is empty
+  command: test -z "$(ls -A /var/www/html)"
+  register: html_folder_empty
+  changed_when: false
+  failed_when: false
+
+- name: Copy index.html (placeholder web page)
+  copy:
+    src: index.html
+    dest: /var/www/html/index.html
+    mode: '0644'
+  when: html_folder_empty.rc == 0
+
+- name: Ensure devops user owns /var/www/html
+  file:
+    path: /var/www/html
+    owner: devops
+    group: www-data
+    recurse: yes
+

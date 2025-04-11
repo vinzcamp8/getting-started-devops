@@ -1,0 +1,8 @@
+terraform {
+  backend "azurerm" {
+    resource_group_name   = "devops-staticsite-rg"
+    storage_account_name  = "devopsstaticsitetfstate"
+    container_name        = "tfstate"
+    key                   = "terraform.tfstate"
+  }
+}
