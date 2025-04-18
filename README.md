@@ -2,6 +2,9 @@
 
 #### Code repository for [this article](https://vincenzocampagnano.com/blog/devops-journey).
 
+## Pipeline
+![Pipeline](DevOps_Pipeline_StaticSite.webp)
+
 ## Structure
 ```
 ├── .gitlab-ci.yml (to put in your static site repository)
