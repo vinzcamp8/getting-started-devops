@@ -5,6 +5,11 @@
 ## Pipeline
 ![Pipeline](DevOps_Pipeline_StaticSite.webp)
 
+- IaC and CM is easy to understand following the codebase
+- The Static Site repository is maintained by the engineer/developer that _Plan->Design->Develop->Test->Integrate_
+- Each commit trigger the **GitLab pipeline** executed by a GitLab Runner (self-hosted or instance): it _Build_ the Static Site (testing/linting/pretting as well) then _Deploy_ the output to the VM on Azure Cloud
+> In this way we guarantee a seamlessly Development and Operations
+
 ## Structure
 ```
 ├── .gitlab-ci.yml (to put in your static site repository)
