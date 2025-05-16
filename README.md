@@ -1,6 +1,7 @@
 # Getting started with DevOps
 
 #### Code repository for [this article](https://vincenzocampagnano.com/blog/devops-journey).
+#### Take a look to [with-local-test-env branch](https://github.com/vinzcamp8/getting-started-devops/tree/with-local-test-env), it adds important features.
 
 ## Pipeline
 ![Pipeline](DevOps_Pipeline_StaticSite.webp)
