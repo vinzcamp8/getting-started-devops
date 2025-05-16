@@ -1,0 +1,10 @@
+[web]
+vincenzocampagnano.com ansible_user=admin ansible_ssh_private_key_file=~/.ssh/id_rsa ansible_port=55555 nginx_site_file=vincenzocampagnano.com
+
+# fire: ansible-playbook -i inventory_cloud playbook.yml 
+# fire: ansible-playbook -i inventory_local playbook.yml --tags web
+# fire: ansible-playbook -i inventory_local playbook.yml --tags ssl
+# fire: ansible-playbook -i inventory_local playbook.yml --tags unich-lesson-updates
+# fire: ansible-playbook -i inventory_local playbook.yml --tags ssh-conf
+# fire: ansible-playbook -i inventory_local playbook.yml --tags web,ssl
+# fire: ansible-playbook -i inventory_local playbook.yml --skip-tags unich-lesson-updates

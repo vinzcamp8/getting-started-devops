@@ -41,7 +41,7 @@ resource "azurerm_network_security_group" "nsg" {
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_range     = "22"
+    destination_port_range     = "55555"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
@@ -88,13 +88,13 @@ resource "azurerm_linux_virtual_machine" "vm" {
   name                  = "${var.project_prefix}-vm"
   resource_group_name   = azurerm_resource_group.main.name
   location              = var.location
-  size                  = "Standard_B1s"
-  admin_username        = "devops"
+  size                  = "Standard_B2ats_v2"
+  admin_username        = "${var.admin_user}"
   network_interface_ids = [azurerm_network_interface.nic.id]
   disable_password_authentication = true
 
   admin_ssh_key {
-    username   = "devops"
+    username   = "${var.admin_user}"
     public_key = file(var.public_ssh_key_path)
   }
 

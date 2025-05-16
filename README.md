@@ -1,9 +1,17 @@
 # Getting started with DevOps
 
 #### Code repository for [this article](https://vincenzocampagnano.com/blog/devops-journey).
+- #### In this branch there is an added local environment to test the system before to push in production.
+- #### Local environemnt using Terraform and KVM.
+- #### The usage istructions refers to the main branch. The istructions are pretty similar, just follow the different structure and code.
 
-## Pipeline
-![Pipeline](DevOps_Pipeline_StaticSite.webp)
+Main features of this branch: 
+- IaC and CM for local environment using KVM (isolated from cloud environment), 
+- ssh-conf role to update the ssh port in an idempotent way, 
+- GitLab CI pipeline refactored to test the changes in the dev branch in the local environment.
+
+## Pipeline (to update)
+![Pipeline](DevOps_Pipeline_StaticSite.webp) 
 
 - IaC and CM is easy to understand following the codebase
 - The Static Site repository is maintained by the engineer/developer that _Plan->Design->Develop->Test->Integrate_
@@ -12,16 +20,26 @@
 
 ## Structure
 ```
-├── .gitlab-ci.yml (to put in your static site repository)
+.
 ├── ansible
-│   ├── inventory
+│   ├── inventory_cloud
+│   ├── inventory_local
 │   ├── playbook.yml
 │   └── roles
+│       ├── ssh-conf
+│       │   ├── handlers
+│       │   │   └── main.yml
+│       │   └── tasks
+│       │       └── main.yml
 │       ├── ssl
 │       │   ├── files
-│       │   │   └── private.key.pem (your)
-│       │   │   └── domain.cert.pem (your)
+│       │   │   ├── localvinz.com
 │       │   │   └── vincenzocampagnano.com
+│       │   └── tasks
+│       │       └── main.yml
+│       ├── unich-lesson-updates
+│       │   ├── files
+│       │   │   └── unich_lesson_updates.pub
 │       │   └── tasks
 │       │       └── main.yml
 │       └── web
@@ -29,17 +47,28 @@
 │           │   └── index.html
 │           └── tasks
 │               └── main.yml
+├── DevOps_Pipeline_StaticSite.webp
 ├── LICENSE
 ├── README.md
 └── terraform
-    ├── backend.tf.example
-    ├── main.tf
-    ├── outputs.tf
-    ├── state-backend.tf
-    ├── terraform.tfvars.example
-    └── variables.tf
+    ├── cloud
+    │   ├── backend.tf.example
+    │   ├── main.tf
+    │   ├── outputs.tf
+    │   ├── state-backend.tf
+    │   ├── terraform.tfvars.example
+    │   └── variables.tf
+    └── local
+        ├── assets
+        │   ├── cloud_init.cfg
+        │   ├── network_config_dhcp.cfg
+        │   └── network_config_static.cfg
+        ├── main.tf
+        ├── outputs.tf
+        ├── terraform.tfvars.example
+        └── variables.tf
 
-9 directories, 14 files
+18 directories, 28 files
 ```
 ## Pre-requisites
 - Terraform

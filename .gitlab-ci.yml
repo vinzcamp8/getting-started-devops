@@ -1,51 +1,92 @@
-image: node:20
+workflow:
+  rules:
+    # Do not run pipeline if only .gitlab-ci.yml changes
+    - changes:
+        - .gitlab-ci.yml
+      when: never
+    # Run pipeline if any file except .gitlab-ci.yml changes
+    - changes:
+        - "**/*"
+      when: always
 
 stages:
   - build
   - deploy
 
-variables:
-  SSH_PRIVATE_KEY: $SSH_PRIVATE_KEY
-  REMOTE_USER: devops
-  REMOTE_HOST: vincenzocampagnano.com
-  REMOTE_PATH: /var/www/html
-  EXPORT: "1"
-  UNOPTIMIZED: "1"
-  BASE_PATH: ""
-
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-    - .next/cache
-  policy: pull-push
-
-before_script:
-  - apt-get update && apt-get install -y --no-install-recommends rsync openssh-client
-  - yarn install --frozen-lockfile
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - ssh-keyscan -H "$REMOTE_HOST" >> ~/.ssh/known_hosts || true
-
-build:
+# GitLab CI template for building the application
+.build-template: &build_template
+  image: node:20
   stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+      - .next/cache
+    policy: pull-push
+  before_script:
+    - yarn install --frozen-lockfile
+  variables:
+    EXPORT: "1"
+    UNOPTIMIZED: "1"
+    BASE_PATH: ""
   script:
     - yarn build
   artifacts:
     paths:
       - out/
     expire_in: 1h
+
+# build job for the main branch
+build-job:
+  <<: *build_template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
-deploy:
+# build job for the dev branch (this job will run on a self-hosted runner)
+build-job-dev:
+  <<: *build_template
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+  tags:
+    - local # (self-hosted runner)
+
+# GitLab CI template for deploying the application
+.deploy-template: &deploy_template
+  image: alpine:3.19
   stage: deploy
-  dependencies:
-    - build
+  before_script:
+    - apk add --no-cache rsync openssh-client
+    - eval $(ssh-agent -s)
+    - printf "%s\n" "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - ssh-keyscan -p 55555 -H "$REMOTE_HOST" >> ~/.ssh/known_hosts || true
   script:
-    - rsync -avz --delete out/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
+    - rsync -e "ssh -p 55555" -avz --delete out/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
+
+# deploy job for the main branch
+deploy-job:
+  <<: *deploy_template
+  dependencies:
+    - build-job
+  variables:
+    SSH_PRIVATE_KEY: $SSH_PRIVATE_KEY
+    REMOTE_USER: $REMOTE_USER
+    REMOTE_HOST: $REMOTE_HOST
+    REMOTE_PATH: /var/www/html
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-# Use "rules" statement instead "only" of so in future, if you want, 
-# you can add rules to deploy only if a specif directory is changed
+
+# deploy job for the dev branch (this job will run on a self-hosted runner)
+deploy-job-dev:
+  <<: *deploy_template
+  dependencies:
+    - build-job-dev
+  variables:
+    SSH_PRIVATE_KEY: $LOCAL_SSH_PRIVATE_KEY
+    REMOTE_USER: $LOCAL_USER
+    REMOTE_HOST: $LOCAL_HOST
+    REMOTE_PATH: /var/www/html
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+  tags:
+    - local # (self-hosted runner)

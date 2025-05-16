@@ -1,13 +1,13 @@
 server {
     listen 80;
-    server_name vincenzocampagnano.com www.vincenzocampagnano.com;
+    server_name localvinz.com www.localvinz.com;
 
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name vincenzocampagnano.com www.vincenzocampagnano.com;
+    server_name localvinz.com www.localvinz.com;
 
     ssl_certificate /etc/nginx/ssl/domain.cert.pem;
     ssl_certificate_key /etc/nginx/ssl/private.key.pem;

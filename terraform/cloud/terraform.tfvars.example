@@ -1,4 +1,5 @@
 project_prefix        = "devops-staticsite"
 resource_group_name   = "devops-staticsite-rg"
 location              = "West Europe"
+admin_user            = "admin"
 public_ssh_key_path   = "~/.ssh/id_rsa.pub"

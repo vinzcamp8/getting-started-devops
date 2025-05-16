@@ -22,3 +22,7 @@ crash.log
 *.swo
 .idea/
 .vscode/
+
+# Ignore iso and img files
+*.iso
+*.img

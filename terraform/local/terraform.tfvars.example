@@ -1,0 +1,5 @@
+hostname        = "testhostname"
+domain          = "testvinz.com"
+ip_type         = "static"
+memoryMB        = 1024*1
+cpu             = 2

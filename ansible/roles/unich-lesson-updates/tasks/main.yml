@@ -1,0 +1,61 @@
+---
+- name: Installa pacchetti necessari
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - python3
+    - python3-pip
+    - unzip
+  become: true
+
+- name: Configura il locale
+  become: true
+  block:
+    - name: Genera it_IT.UTF-8
+      ansible.builtin.command: locale-gen it_IT.UTF-8
+
+    - name: Imposta LC_TIME
+      ansible.builtin.lineinfile:
+        path: /etc/default/locale
+        regexp: '^LC_TIME='
+        line: 'LC_TIME="it_IT.UTF-8"'
+
+- name: Crea directory base per l'app
+  ansible.builtin.file:
+    path: /opt/unich-lesson-updates
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Crea file di log
+  ansible.builtin.file:
+    path: /var/log/unich-lesson-updates.log
+    state: touch
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Imposta cron job per script.py
+  ansible.builtin.cron:
+    name: "Notifica aggiornamenti lezioni UNICH"
+    minute: "*/30"
+    hour: "7-23"
+    job: "cd /opt/unich-lesson-updates && /usr/bin/python3 script.py >> /var/log/unich-lesson-updates.log 2>&1"
+    user: "{{ ansible_user }}"
+
+- name: Crea directory ~/.ssh se non esiste
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0700'
+
+- name: Aggiungi chiave pubblica GitHub Actions a authorized_keys
+  ansible.builtin.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ lookup('file', 'files/unich_lesson_updates.pub') }}"

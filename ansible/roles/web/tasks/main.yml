@@ -23,10 +23,10 @@
     mode: '0644'
   when: html_folder_empty.rc == 0
 
-- name: Ensure devops user owns /var/www/html
+- name: Ensure "{{ ansible_user }}" user owns /var/www/html
   file:
     path: /var/www/html
-    owner: devops
+    owner: "{{ ansible_user }}"
     group: www-data
     recurse: yes
 

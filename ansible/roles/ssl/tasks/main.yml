@@ -32,16 +32,16 @@
 
 - name: Copy custom NGINX configuration for SSL
   copy:
-    src: "vincenzocampagnano.com"
-    dest: "/etc/nginx/sites-available/vincenzocampagnano.com"
+    src: "{{ nginx_site_file }}"
+    dest: "/etc/nginx/sites-available/{{ nginx_site_file }}"
     owner: root
     group: root
     mode: '0644'
 
 - name: Enable custom NGINX config
   file:
-    src: "/etc/nginx/sites-available/vincenzocampagnano.com"
-    dest: "/etc/nginx/sites-enabled/vincenzocampagnano.com"
+    src: "/etc/nginx/sites-available/{{ nginx_site_file }}"
+    dest: "/etc/nginx/sites-enabled/{{ nginx_site_file }}"
     state: link
     force: yes
 

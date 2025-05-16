@@ -1,2 +1,5 @@
 # Ignore SSL certificates
 *.pem
+
+# Ignore SSH keys
+*.pub
